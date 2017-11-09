@@ -59,20 +59,21 @@ class Manager
 
         $filesByFile = $files->groupBy(function ($file) {
             $filePath = str_replace('.' . $file->getExtension(), '', $file->getRelativePathname());
+            $filePath = str_replace( '\\', '/', $filePath);
             $filePath = array_reverse(explode('/', $filePath, 2))[0];
-
             if (Str::contains($file->getPath(), 'vendor')) {
                 $filePath = str_replace('.php', '', $file->getFileName());
-
+                $filePath = str_replace( '\\', '/', $filePath);
                 $packageName = basename(dirname($file->getPath()));
-
+                $packageName = str_replace( '\\', '/', $packageName);
                 return "{$packageName}::{$filePath}";
             } else {
                 return $filePath;
             }
         })->map(function ($files) {
             return $files->keyBy(function ($file) {
-                return explode('/', str_replace($this->path, '', $file->getRelativePathname()))[0];
+                $relativePathname = str_replace( '\\', '/', $file->getRelativePathname());
+                return explode('/', str_replace($this->path, '', $relativePathname))[0];
             })->map(function ($file) {
                 return $file->getRealPath();
             });
